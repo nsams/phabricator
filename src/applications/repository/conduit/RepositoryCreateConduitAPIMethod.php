@@ -28,6 +28,18 @@ final class RepositoryCreateConduitAPIMethod
       'callsign'            => 'required string',
       'description'         => 'optional string',
       'encoding'            => 'optional string',
+      'hosting-enabled'     => 'optional bool',
+      'serve-over-http'     => 'optional enum <off,readonly,readwrite>',
+      'serve-over-ssh'      => 'optional enum <off,readonly,readwrite>',
+      'viewPolicy'          => 'optional string (\'admin\', \'users\' or a'
+                               .'  specific project id, e.g.'
+                               .' \'PHID-PROJ-2ougcjiddsrkkcptcfpi\')',
+      'editPolicy'          => 'optional string (\'admin\', \'users\' or a'
+                               .'  specific project id, e.g.'
+                               .' \'PHID-PROJ-2ougcjiddsrkkcptcfpi\')',
+      'pushPolicy'          => 'optional string (\'admin\', \'users\' or a'
+                               .'  specific project id, e.g.'
+                               .' \'PHID-PROJ-2ougcjiddsrkkcptcfpi\')',
       'tracking'            => 'optional bool',
       'uri'                 => 'required string',
       'credentialPHID'      => 'optional string',
@@ -103,9 +115,27 @@ final class RepositoryCreateConduitAPIMethod
     $repository->setCredentialPHID($request->getValue('credentialPHID'));
 
     $remote_uri = $request->getValue('uri');
-    PhabricatorRepository::assertValidRemoteURI($remote_uri);
+    if ($remote_uri) {
+      PhabricatorRepository::assertValidRemoteURI($remote_uri);
+    }
+
+    $viewPolicy = $request->getValue('viewPolicy');
+    if ($viewPolicy) {
+      $repository->setViewPolicy($viewPolicy);
+    }
+    $editPolicy = $request->getValue('editPolicy');
+    if ($editPolicy) {
+      $repository->setEditPolicy($editPolicy);
+    }
+    $pushPolicy = $request->getValue('pushPolicy');
+    if ($pushPolicy) {
+      $repository->setPushPolicy($pushPolicy);
+    }
 
     $details = array(
+      'hosting-enabled'   => $request->getValue('hosting-enabled'),
+      'serve-over-http'   => $request->getValue('serve-over-http'),
+      'serve-over-ssh'    => $request->getValue('serve-over-ssh'),
       'encoding'          => $request->getValue('encoding'),
       'description'       => $request->getValue('description'),
       'tracking-enabled'  => (bool)$request->getValue('tracking', true),
